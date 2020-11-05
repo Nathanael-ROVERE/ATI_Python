@@ -13,15 +13,13 @@ def temple():
     hauteur_marche = cmds.floatSliderGrp(slider6, q=True, value=True) #0.3
    
     nb_etages_toit = cmds.intSliderGrp(slider7, q=True, value=True) #20
-    #hauteur_toit = cmds.floatSliderGrp(slider8, q=True, value=True) #6
     hauteur_toit = 6
-    
+    #hauteur_toit = cmds.floatSliderGrp(slider8, q=True, value=True) #6
+
     # Algorithme permettant à la largeur de toujours être plus petite que la longueur
     if (largeur>longueur):
-        cst=largeur
-        largeur=longueur
-        longueur=cst
-    
+        largeur, longueur = longueur, largeur
+
     # Génération du sol  
     cmds.polyCube(width=(largeur)*espace, height=hauteur_marche, depth=(longueur)*espace, name="sol_1")
     cmds.move(espace*(largeur-1)/2,nb_marches*hauteur_marche,espace*(longueur-1)/2, "sol_1")
@@ -76,21 +74,14 @@ def temple():
     float_h = float(hauteur_toit)
     float_n = float(nb_etages_toit)
     hauteur_etage = float_h/float_n
-    print(hauteur_etage)
     
     for n in range (1, nb_etages_toit+1):
         nom_tmp = "toit_%d"%n
         cmds.polyCube(width=(largeur*espace+1)*(1-(float(n)/nb_etages_toit)), height=hauteur_etage, depth=(longueur*espace)*(1-(float(n-1)/(2*nb_etages_toit-2))), name=nom_tmp)
         cmds.move(espace*(largeur-1)/2,(nb_marches+1)*hauteur_marche+1.55+hauteur_colonne+(hauteur_etage/2.0)+hauteur_etage*(n-1),espace*(longueur-1)/2, nom_tmp)
 
-
 # INTERFACE 
-
-def close_callback(window, arg):
-  print "Close!", window
-  cmds.deleteUI(window, window=True)
-
-cmds.window(title = "Temple Generator © Nathanaël ROVERE", tlc=[0,0], backgroundColor=(0.1, 0.4, 0.5))
+window = cmds.window(title = "Temple Generator © Nathanaël ROVERE", tlc=[0,0], backgroundColor=(0.1, 0.4, 0.5))
 cmds.columnLayout(adjustableColumn=True, columnAttach=["both", 20])
 cmds.separator(style="none", h=20)
 slider1= cmds.intSliderGrp( field=True, label='Longueur du Temple', minValue=3, maxValue=30, value=10)
@@ -105,16 +96,5 @@ slider7= cmds.intSliderGrp( field=True, label='Nombre de couches du toit', minVa
 #slider8= cmds.floatSliderGrp( field=True, label='Hauteur totale du toit', minValue=4, maxValue=20, value=6)
 cmds.separator(style="none", h=20)
 cmds.button(label = "Create Temple",c='temple()')
-cmds.button(label="Close", command=functools.partial(close_callback, window))
 cmds.setParent('..')
 cmds.showWindow()
-
-
-
-
-
-
-
-
-
-
