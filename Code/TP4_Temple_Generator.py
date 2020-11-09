@@ -3,6 +3,10 @@ from random import *
 cmds.file(f=True, new=True) #permet de vider la scène à chaque exécution
 
 def temple():    
+    random = randint(0,200) #seed d'un temple
+    
+    Temple = cmds.group(name="Temple"+str(random), em=True)
+    
     # Variables dynamiques
     longueur = cmds.intSliderGrp(slider1, q=True, value=True) #10
     largeur = cmds.intSliderGrp(slider2, q=True, value=True) #8
@@ -15,27 +19,33 @@ def temple():
     nb_etages_toit = cmds.intSliderGrp(slider7, q=True, value=True) #20
     hauteur_toit = cmds.intSliderGrp(slider8, q=True, value=True) #6
     
-    random = randint(0,200) #seed d'un temple
+    
     # Algorithme permettant à la largeur de toujours être plus petite que la longueur
     if (largeur>longueur):
         largeur, longueur = longueur, largeur
 
     # Génération du sol  
+    Marches = cmds.group(name="Marches", em=True)
+    
     cmds.polyCube(width=(largeur)*espace, height=hauteur_marche, depth=(longueur)*espace, name="sol_1_"+str(random))
     cmds.move(espace*(largeur-1)/2,nb_marches*hauteur_marche,espace*(longueur-1)/2, "sol_1_"+str(random))
+    cmds.parent("sol_1_"+str(random),Marches)
     
     for a in range (nb_marches-1):
         nom_tmp = "sol_"+str(a+2)+"_"+str(random)
-        cmds.instance("sol_1_"+str(random), name=nom_tmp)
+        marche = cmds.instance("sol_1_"+str(random), name=nom_tmp)
         cmds.scale(1+0.1*(a+1),1,1+0.1*(a+1), nom_tmp)
         cmds.move(espace*(largeur-1)/2,(nb_marches-a-1)*hauteur_marche, espace*(longueur-1)/2, nom_tmp)
+        
     
     #Génération des colonnes
+    Colonnes = cmds.group(name="Colonnes", em=True)
     for i in range(longueur):
         for j in range(largeur):
             if (j==largeur-1) or (j==0) or (i==0) or (i==longueur-1):
                 
                 # VARIABLES
+                Colonne = cmds.group(name="Colonne"+str(i)+"_"+str(j)+str(random), em=True)
                 cube_bas = "cube_bas_"+str(i)+str(j)+"_"+str(random)      # Rangée de cubes au sol
                 cube_bas2 = "cube_bas2_"+str(i)+str(j)+"_"+str(random)    # Rangée de cubes au dessus de la précédente
                 cylindre = "cylindre_"+str(i)+str(j)+"_"+str(random)      # Colonne
@@ -50,6 +60,8 @@ def temple():
                 cmds.polyCylinder(height=hauteur_colonne, radius=.4, sx=9, name=cylindre2+str(random))
                 cmds.polyCube(width=1.1, height=.1, depth=1.1, name=cube_haut+str(random))
                 cmds.polyCube(width=1.3, height=.3, depth=1.3, name=cube_haut2+str(random))
+                cmds.parent(cube_bas+str(random), cube_bas2+str(random), cylindre+str(random), cylindre2+str(random), cube_haut+str(random), cube_haut2+str(random) ,Colonne)
+                cmds.parent(Colonne,Colonnes)
                 
                 # ACTIONS
                 cmds.move(j*espace,(nb_marches+1)*hauteur_marche,i*espace, cube_bas+str(random))
@@ -60,10 +72,12 @@ def temple():
                 cmds.move(j*espace,(nb_marches+1)*hauteur_marche+0.4+hauteur_colonne,i*espace, cube_haut2+str(random))
             
     #Génération du plafond
+    Toit = cmds.group(name="Toit", em=True)
     cmds.polyCube(width=(largeur-1+0.7)*espace, height=.4, depth=(longueur-1+0.7)*espace, name="plafond_1_"+str(random))
     cmds.polyCube(width=(largeur-1+0.6)*espace, height=.3, depth=(longueur-1+0.6)*espace, name="plafond_2_"+str(random))
     cmds.polyCube(width=(largeur-1+0.8)*espace, height=.6, depth=(longueur-1+0.8)*espace, name="plafond_3_"+str(random))
     cmds.polyCube(width=(largeur-1+0.6)*espace, height=.6, depth=(longueur-1+0.6)*espace, name="plafond_4_"+str(random))
+    cmds.parent("plafond_1_"+str(random), "plafond_2_"+str(random), "plafond_3_"+str(random), "plafond_4_"+str(random), Toit)
     
     cmds.move(espace*(largeur-1)/2,(nb_marches+1)*hauteur_marche+0.6+hauteur_colonne,espace*(longueur-1)/2, "plafond_1_"+str(random))
     cmds.move(espace*(largeur-1)/2,(nb_marches+1)*hauteur_marche+0.75+hauteur_colonne,espace*(longueur-1)/2, "plafond_2_"+str(random))
@@ -78,7 +92,9 @@ def temple():
     for n in range (1, nb_etages_toit+1):
         nom_tmp = "toit_"+str(n)+"_"+str(random)
         cmds.polyCube(width=(largeur*espace+1)*(1-(float(n)/nb_etages_toit)), height=hauteur_etage, depth=(longueur*espace)*(1-(float(n-1)/(2*nb_etages_toit-2))), name=nom_tmp)
+        cmds.parent(nom_tmp, Toit)
         cmds.move(espace*(largeur-1)/2,(nb_marches+1)*hauteur_marche+1.55+hauteur_colonne+(hauteur_etage/2.0)+hauteur_etage*(n-1),espace*(longueur-1)/2, nom_tmp)
+    cmds.parent(Marches, Colonnes, Toit, Temple)
 
 # INTERFACE 
 window = cmds.window(title = "Temple Generator © Nathanaël ROVERE", tlc=[0,0], backgroundColor=(0.1, 0.4, 0.5))
