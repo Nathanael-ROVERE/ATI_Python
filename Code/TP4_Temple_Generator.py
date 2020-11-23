@@ -3,7 +3,7 @@ from random import *
 cmds.file(f=True, new=True) #permet de vider la scène à chaque exécution
 
 def temple():    
-    random = randint(0,200) #seed d'un temple
+    random = randint(0,500) #seed d'un temple
     
     Temple = cmds.group(name="Temple"+str(random), em=True)
     
@@ -62,6 +62,7 @@ def temple():
                 cmds.polyCube(width=1.3, height=.3, depth=1.3, name=cube_haut2+str(random))
                 cmds.parent(cube_bas+str(random), cube_bas2+str(random), cylindre+str(random), cylindre2+str(random), cube_haut+str(random), cube_haut2+str(random) ,Colonne)
                 cmds.parent(Colonne,Colonnes)
+                cmds.color(Colonnes, rgb=(1,1,0))
                 
                 # ACTIONS
                 cmds.move(j*espace,(nb_marches+1)*hauteur_marche,i*espace, cube_bas+str(random))
@@ -96,6 +97,8 @@ def temple():
         cmds.move(espace*(largeur-1)/2,(nb_marches+1)*hauteur_marche+1.55+hauteur_colonne+(hauteur_etage/2.0)+hauteur_etage*(n-1),espace*(longueur-1)/2, nom_tmp)
     cmds.parent(Marches, Colonnes, Toit, Temple)
 
+
+
 # INTERFACE 
 window = cmds.window(title = "Temple Generator © Nathanaël ROVERE", tlc=[0,0], backgroundColor=(0.1, 0.4, 0.5))
 cmds.columnLayout(adjustableColumn=True, columnAttach=["both", 20])
@@ -111,6 +114,7 @@ cmds.separator(style="none", h=10)
 
 slider5= cmds.intSliderGrp( field=True, label='Nombre de Marches', minValue=2, maxValue=30, value=5)
 slider6= cmds.floatSliderGrp( field=True, label='Hauteur des marches', minValue=0.1, maxValue=5, value=0.3)
+
 cmds.separator(style="none", h=10)
 
 slider7= cmds.intSliderGrp( field=True, label='Nombre de couches du toit', minValue=4, maxValue=50, value=20)
